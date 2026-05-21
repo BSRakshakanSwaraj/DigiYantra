@@ -17,18 +17,14 @@ router.post("/signup", async (req, res) => {
   try {
 
     const {
-
       name,
       email,
       password,
       role,
       collegeCode
-
     } = req.body;
 
-    // ====================================
     // VALIDATION
-    // ====================================
     if (
       !name ||
       !email ||
@@ -43,9 +39,7 @@ router.post("/signup", async (req, res) => {
 
     }
 
-    // ====================================
     // SUPERADMIN CANNOT SIGNUP
-    // ====================================
     if (role === "superadmin") {
 
       return res.status(403).json({
@@ -55,9 +49,7 @@ router.post("/signup", async (req, res) => {
 
     }
 
-    // ====================================
     // COLLEGE REQUIRED
-    // ====================================
     if (!collegeCode) {
 
       return res.status(400).json({
@@ -67,9 +59,7 @@ router.post("/signup", async (req, res) => {
 
     }
 
-    // ====================================
     // FIND COLLEGE
-    // ====================================
     const college = await College.findOne({
       collegeCode
     });
@@ -83,15 +73,10 @@ router.post("/signup", async (req, res) => {
 
     }
 
-    // ====================================
     // CHECK EXISTING USER
-    // ====================================
     const existingUser = await User.findOne({
-
       email,
-
       collegeId: college._id
-
     });
 
     if (existingUser) {
@@ -103,9 +88,7 @@ router.post("/signup", async (req, res) => {
 
     }
 
-    // ====================================
     // CREATE USER
-    // ====================================
     const user = await User.create({
 
       name,
@@ -118,9 +101,8 @@ router.post("/signup", async (req, res) => {
 
       collegeId: college._id,
 
-      // ADMIN AUTO APPROVED
+      // ONLY NORMAL USERS REQUIRE APPROVAL
       isApproved: false
-       
 
     });
 
@@ -162,16 +144,12 @@ router.post("/login", async (req, res) => {
   try {
 
     const {
-
       email,
       password,
       collegeCode
-
     } = req.body;
 
-    // ====================================
     // VALIDATION
-    // ====================================
     if (!email || !password) {
 
       return res.status(400).json({
@@ -181,130 +159,100 @@ router.post("/login", async (req, res) => {
 
     }
 
+    let user;
+
     // ====================================
-    // ✅ SUPER ADMIN LOGIN
+    // ✅ SUPERADMIN LOGIN
     // ====================================
     if (
       email === "superadmin@digiyantra.com"
     ) {
 
-      const superAdmin =
-        await User.findOne({
+      user = await User.findOne({
 
-          email,
+        email,
 
-          password,
+        password,
 
-          role: "superadmin"
+        role: "superadmin"
 
-        });
+      });
 
-      if (!superAdmin) {
+      if (!user) {
 
         return res.status(400).json({
           success: false,
-          message: "Invalid credentials"
+          message: "Invalid Super Admin credentials"
         });
 
       }
 
-      const token = jwt.sign({
+    }
 
-        userId: superAdmin._id,
+    // ====================================
+    // ✅ NORMAL LOGIN
+    // ====================================
+    else {
 
-        role: superAdmin.role
+      // COLLEGE REQUIRED
+      if (!collegeCode) {
 
-      },
+        return res.status(400).json({
+          success: false,
+          message: "College code required"
+        });
 
-      "SECRET",
+      }
 
-      {
-        expiresIn: "7d"
+      // FIND COLLEGE
+      const college = await College.findOne({
+        collegeCode
       });
 
-      return res.json({
+      if (!college) {
 
-        success: true,
+        return res.status(400).json({
+          success: false,
+          message: "Invalid college code"
+        });
 
-        message: "Super Admin login successful",
+      }
 
-        token,
+      // FIND USER
+      user = await User.findOne({
 
-        role: superAdmin.role,
+        email,
 
-        user: {
+        password,
 
-          id: superAdmin._id,
-
-          name: superAdmin.name,
-
-          email: superAdmin.email,
-
-          role: superAdmin.role
-
-        }
+        collegeId: college._id
 
       });
+
+      if (!user) {
+
+        return res.status(400).json({
+          success: false,
+          message: "Invalid email or password"
+        });
+
+      }
+
+      // APPROVAL CHECK
+      if (!user.isApproved) {
+
+        return res.status(403).json({
+          success: false,
+          message: "Waiting for admin approval"
+        });
+
+      }
 
     }
 
     // ====================================
-    // NORMAL LOGIN
+    // CREATE JWT TOKEN
     // ====================================
-    if (!collegeCode) {
-
-      return res.status(400).json({
-        success: false,
-        message: "College code required"
-      });
-
-    }
-
-    // FIND COLLEGE
-    const college = await College.findOne({
-      collegeCode
-    });
-
-    if (!college) {
-
-      return res.status(400).json({
-        success: false,
-        message: "Invalid college code"
-      });
-
-    }
-
-    // FIND USER
-    const user = await User.findOne({
-
-      email,
-
-      password,
-
-      collegeId: college._id
-
-    });
-
-    if (!user) {
-
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email or password"
-      });
-
-    }
-
-    // CHECK APPROVAL
-    if (!user.isApproved) {
-
-      return res.status(403).json({
-        success: false,
-        message: "Waiting for admin approval"
-      });
-
-    }
-
-    // CREATE TOKEN
     const token = jwt.sign({
 
       userId: user._id,
