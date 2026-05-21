@@ -52,89 +52,112 @@ export function LoginForm() {
   // ====================================
   // LOGIN
   // ====================================
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
 
-    try {
+  try {
 
-      setIsLoading(true);
+    setIsLoading(true);
 
-      const res = await api.post(
+    // ✅ CREATE PAYLOAD
+    const payload: any = {
 
-        "/auth/login",
+      email: formData.email,
 
-        formData
+      password: formData.password
 
-      );
+    };
 
-      // SAVE TOKEN
-      localStorage.setItem(
-        "token",
-        res.data.token
-      );
+    // ✅ ONLY NORMAL USERS SEND COLLEGE CODE
+    if (
+      formData.email !==
+      "superadmin@digiyantra.com"
+    ) {
 
-      // SAVE ROLE
-      localStorage.setItem(
-        "role",
-        res.data.role.toLowerCase()
-      );
-
-      // SAVE USER
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data.user)
-      );
-
-      alert("Login successful");
-
-      // ROLE REDIRECT
-      const role =
-        res.data.role.toLowerCase();
-
-      // SUPERADMIN
-      if (role === "superadmin") {
-
-        navigate("/superadmin");
-
-      }
-
-      // ADMIN
-      else if (role === "admin") {
-
-        navigate("/admin");
-
-      }
-
-      // SERVICE
-      else if (role === "service") {
-
-        navigate("/service");
-
-      }
-
-      // USER
-      else {
-
-        navigate("/user");
-
-      }
-
-    } catch (err: any) {
-
-      alert(
-
-        err.response?.data?.message ||
-
-        "Login failed"
-
-      );
-
-    } finally {
-
-      setIsLoading(false);
+      payload.collegeCode =
+        formData.collegeCode;
 
     }
 
-  };
+    // ✅ LOGIN API
+    const res = await api.post(
+
+      "/auth/login",
+
+      payload
+
+    );
+
+    // SAVE TOKEN
+    localStorage.setItem(
+      "token",
+      res.data.token
+    );
+
+    // SAVE ROLE
+    localStorage.setItem(
+      "role",
+      res.data.role.toLowerCase()
+    );
+
+    // SAVE USER
+    localStorage.setItem(
+      "user",
+      JSON.stringify(res.data.user)
+    );
+
+    alert("Login successful");
+
+    // ROLE REDIRECT
+    const role =
+      res.data.role.toLowerCase();
+
+    // SUPERADMIN
+    if (role === "superadmin") {
+
+      navigate("/superadmin");
+
+    }
+
+    // ADMIN
+    else if (role === "admin") {
+
+      navigate("/admin");
+
+    }
+
+    // SERVICE
+    else if (role === "service") {
+
+      navigate("/service");
+
+    }
+
+    // USER
+    else {
+
+      navigate("/user");
+
+    }
+
+  } catch (err: any) {
+
+    console.log(err);
+
+    alert(
+
+      err.response?.data?.message ||
+
+      "Login failed"
+
+    );
+
+  } finally {
+
+    setIsLoading(false);
+
+  }
+
+};
 
   return (
 
