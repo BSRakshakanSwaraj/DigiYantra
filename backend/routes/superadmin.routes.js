@@ -278,18 +278,15 @@ router.post(
       });
 
     } catch (error) {
-
-      console.log(error);
-
+      
+      console.log("CREATE COLLEGE ERROR:", error);
+      
       res.status(500).json({
-
+        
         success: false,
-
-        message:
-          "Error creating college"
-
+        message: error.message
+      
       });
-
     }
 
   }
