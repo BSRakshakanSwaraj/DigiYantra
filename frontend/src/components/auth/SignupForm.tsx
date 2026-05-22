@@ -86,7 +86,7 @@ export function SignupForm() {
       }
 
       const res = await api.post(
-        "/auth/signup",
+        "api/auth/signup",
         formData
       );
 

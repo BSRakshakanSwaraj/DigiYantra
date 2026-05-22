@@ -81,7 +81,7 @@ const handleSubmit = async () => {
     // ✅ LOGIN API
     const res = await api.post(
 
-      "/auth/login",
+      "api/auth/login",
 
       payload
 
