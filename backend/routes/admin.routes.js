@@ -28,7 +28,7 @@ router.get("/pending-users", auth, async (req, res) => {
       isApproved: false,
 
 role: {
-  $in: ["user", "service"]
+  $in: ["user", "faculty", "service"]
 }
 
     }).select("-password");
