@@ -1,27 +1,15 @@
-import {
-  useEffect,
-  useState
-} from "react";
-
+import { useEffect, useState } from "react";
 import api from "../api";
 
 export function SuperAdminPage() {
 
-  const token =
-    localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-  // STATES
-  const [name, setName] =
-    useState("");
+  const [name, setName] = useState("");
+  const [collegeCode, setCollegeCode] = useState("");
 
-  const [collegeCode, setCollegeCode] =
-    useState("");
-
-  const [colleges, setColleges] =
-    useState<any[]>([]);
-
-  const [admins, setAdmins] =
-    useState<any[]>([]);
+  const [colleges, setColleges] = useState<any[]>([]);
+  const [admins, setAdmins] = useState<any[]>([]);
 
   // ======================================
   // FETCH COLLEGES
@@ -31,21 +19,15 @@ export function SuperAdminPage() {
     try {
 
       const res = await api.get(
-
-        "/superadmin/colleges",
-
+        "/api/superadmin/colleges",
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
-      // ✅ FIXED
-      setColleges(
-        res.data.colleges
-      );
+      setColleges(res.data.colleges || []);
 
     } catch (error) {
 
@@ -58,35 +40,28 @@ export function SuperAdminPage() {
   // ======================================
   // FETCH PENDING ADMINS
   // ======================================
-  const fetchPendingAdmins =
-    async () => {
+  const fetchPendingAdmins = async () => {
 
-      try {
+    try {
 
-        const res = await api.get(
-
-          "/superadmin/pending-admins",
-
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+      const res = await api.get(
+        "/api/superadmin/pending-admins",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
+        }
+      );
 
-        // ✅ FIXED
-        setAdmins(
-          res.data.admins
-        );
+      setAdmins(res.data.admins || []);
 
-      } catch (error) {
+    } catch (error) {
 
-        console.log(error);
+      console.log(error);
 
-      }
+    }
 
-    };
+  };
 
   // ======================================
   // INITIAL LOAD
@@ -94,7 +69,6 @@ export function SuperAdminPage() {
   useEffect(() => {
 
     fetchColleges();
-
     fetchPendingAdmins();
 
   }, []);
@@ -106,9 +80,9 @@ export function SuperAdminPage() {
 
     try {
 
-      await api.post(
+      const res = await api.post(
 
-        "/superadmin/create-college",
+        "/api/superadmin/create-college",
 
         {
           name,
@@ -117,26 +91,28 @@ export function SuperAdminPage() {
 
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
       alert(
+        res.data.message ||
         "College created successfully"
       );
 
       setName("");
-
       setCollegeCode("");
 
       fetchColleges();
 
     } catch (error: any) {
 
+      console.log(error);
+
       alert(
-        error.response?.data?.message
+        error.response?.data?.message ||
+        "Failed to create college"
       );
 
     }
@@ -152,23 +128,32 @@ export function SuperAdminPage() {
 
     try {
 
-      await api.delete(
+      const res = await api.delete(
 
-        `/superadmin/college/${id}`,
+        `/api/superadmin/college/${id}`,
 
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
+      alert(
+        res.data.message ||
+        "College deleted"
+      );
+
       fetchColleges();
 
-    } catch (error) {
+    } catch (error: any) {
 
       console.log(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Failed to delete college"
+      );
 
     }
 
@@ -183,25 +168,34 @@ export function SuperAdminPage() {
 
     try {
 
-      await api.put(
+      const res = await api.put(
 
-        `/superadmin/approve-admin/${id}`,
+        `/api/superadmin/approve-admin/${id}`,
 
         {},
 
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
+      alert(
+        res.data.message ||
+        "Admin approved"
+      );
+
       fetchPendingAdmins();
 
-    } catch (error) {
+    } catch (error: any) {
 
       console.log(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Failed to approve admin"
+      );
 
     }
 
@@ -216,23 +210,32 @@ export function SuperAdminPage() {
 
     try {
 
-      await api.delete(
+      const res = await api.delete(
 
-        `/superadmin/reject-admin/${id}`,
+        `/api/superadmin/reject-admin/${id}`,
 
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
+      alert(
+        res.data.message ||
+        "Admin rejected"
+      );
+
       fetchPendingAdmins();
 
-    } catch (error) {
+    } catch (error: any) {
 
       console.log(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Failed to reject admin"
+      );
 
     }
 
@@ -246,15 +249,11 @@ export function SuperAdminPage() {
       <div>
 
         <h1 className="text-4xl font-bold">
-
           Super Admin Dashboard 🚀
-
         </h1>
 
         <p className="text-gray-500 mt-2">
-
           Manage colleges and admins
-
         </p>
 
       </div>
@@ -263,9 +262,7 @@ export function SuperAdminPage() {
       <div className="bg-white p-6 rounded-2xl shadow space-y-4">
 
         <h2 className="text-2xl font-semibold">
-
           Create College
-
         </h2>
 
         <input
@@ -281,9 +278,7 @@ export function SuperAdminPage() {
           placeholder="College Code"
           value={collegeCode}
           onChange={(e) =>
-            setCollegeCode(
-              e.target.value
-            )
+            setCollegeCode(e.target.value)
           }
           className="border p-3 rounded w-full"
         />
@@ -303,17 +298,13 @@ export function SuperAdminPage() {
       <div className="space-y-4">
 
         <h2 className="text-2xl font-bold">
-
           Pending Admin Approvals
-
         </h2>
 
         {admins.length === 0 ? (
 
           <div className="bg-white p-5 rounded-xl shadow">
-
             No pending admins
-
           </div>
 
         ) : (
@@ -328,19 +319,13 @@ export function SuperAdminPage() {
               <div>
 
                 <h3 className="font-semibold text-lg">
-
                   {admin.name}
-
                 </h3>
 
                 <p>{admin.email}</p>
 
                 <p className="text-sm text-gray-500">
-
-                  College:
-                  {" "}
-                  {admin.collegeId?.name}
-
+                  College: {admin.collegeId?.name}
                 </p>
 
               </div>
@@ -349,9 +334,7 @@ export function SuperAdminPage() {
 
                 <button
                   onClick={() =>
-                    approveAdmin(
-                      admin._id
-                    )
+                    approveAdmin(admin._id)
                   }
                   className="bg-green-600 text-white px-4 py-2 rounded-lg"
                 >
@@ -362,9 +345,7 @@ export function SuperAdminPage() {
 
                 <button
                   onClick={() =>
-                    rejectAdmin(
-                      admin._id
-                    )
+                    rejectAdmin(admin._id)
                   }
                   className="bg-red-600 text-white px-4 py-2 rounded-lg"
                 >
@@ -387,9 +368,7 @@ export function SuperAdminPage() {
       <div className="space-y-4">
 
         <h2 className="text-2xl font-bold">
-
           All Colleges
-
         </h2>
 
         {colleges.map((college) => (
@@ -402,24 +381,18 @@ export function SuperAdminPage() {
             <div>
 
               <h3 className="font-semibold text-lg">
-
                 {college.name}
-
               </h3>
 
               <p className="text-gray-600">
-
                 {college.collegeCode}
-
               </p>
 
             </div>
 
             <button
               onClick={() =>
-                deleteCollege(
-                  college._id
-                )
+                deleteCollege(college._id)
               }
               className="bg-red-600 text-white px-4 py-2 rounded-lg"
             >
