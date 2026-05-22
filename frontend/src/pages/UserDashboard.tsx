@@ -41,47 +41,74 @@ export function UserDashboard({ activeTab = "Overview" }: Props) {
   }, []);
 
   const fetchComplaints = async () => {
-    const res = await api.get("/complaints", {
+    const res = await api.get("/api/complaints", {
       headers: { Authorization: `Bearer ${token}` }
     });
     setComplaints(res.data);
   };
 
   const fetchDevices = async () => {
-    const res = await api.get("/devices/my-devices", {
+    const res = await api.get("/api/devices/my-devices", {
       headers: { Authorization: `Bearer ${token}` }
     });
     setDevices(res.data);
   };
 
-  const addDevice = async () => {
+const addDevice = async () => {
+
+  try {
+
     if (!deviceName || !deviceCode) {
+
       alert("Enter device details");
+
       return;
+
     }
 
     await api.post(
-      "/devices",
+
+      "/api/devices",
+
       {
         name: deviceName,
         deviceId: deviceCode
       },
+
       {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
+
     );
+
+    alert("Device added successfully");
 
     setDeviceName("");
     setDeviceCode("");
+
     fetchDevices();
-  };
+
+  } catch (error: any) {
+
+    console.log(error);
+
+    alert(
+      error.response?.data?.message ||
+      "Error adding device"
+    );
+
+  }
+
+};
 
   const raiseDeviceComplaint = async (id: string) => {
     const problem = prompt("Describe the issue");
     if (!problem) return;
 
     await api.post(
-      "/complaints",
+      "/api/complaints",
       {
         title: "Device Complaint",
         description: problem,
@@ -106,7 +133,7 @@ export function UserDashboard({ activeTab = "Overview" }: Props) {
     }
 
     await api.post(
-      "/complaints",
+      "/api/complaints",
       {
         title: "QR Device Complaint",
         description,
@@ -124,7 +151,7 @@ export function UserDashboard({ activeTab = "Overview" }: Props) {
   };
 
   const viewHistory = async (deviceId: string) => {
-    const res = await api.get(`/complaints/device/${deviceId}`, {
+    const res = await api.get(`/api/complaints/device/${deviceId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
