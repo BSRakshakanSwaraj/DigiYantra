@@ -26,7 +26,7 @@ export function AdminApprovalPage() {
     try {
 
       const res = await api.get(
-        "/admin/pending-users",
+        "/api/admin/pending-users",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -55,7 +55,7 @@ export function AdminApprovalPage() {
     try {
 
       await api.put(
-        `/admin/approve-user/${id}`,
+        `/api/admin/approve-user/${id}`,
         {},
         {
           headers: {
@@ -81,7 +81,7 @@ export function AdminApprovalPage() {
     try {
 
       await api.delete(
-        `/admin/reject-user/${id}`,
+        `/api/admin/reject-user/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
