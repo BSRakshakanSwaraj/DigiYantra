@@ -17,7 +17,7 @@ export function ServiceDashboard({ activeTab = "Assigned" }: Props) {
 
   const fetchComplaints = async () => {
 
-    const res = await api.get("/complaints", {
+    const res = await api.get("/api/complaints", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -27,7 +27,7 @@ export function ServiceDashboard({ activeTab = "Assigned" }: Props) {
   const updateStatus = async (id: string, status: string) => {
 
     await api.put(
-      `/complaints/${id}`,
+      `/api/complaints/${id}`,
       { status },
       { headers: { Authorization: `Bearer ${token}` } }
     );

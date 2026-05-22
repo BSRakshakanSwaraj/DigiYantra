@@ -35,7 +35,7 @@ export function AdminDashboard({
     try {
 
       const res = await api.get(
-        "/complaints",
+        "/api/complaints",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export function AdminDashboard({
     try {
 
       const res = await api.get(
-        "/devices/all",
+        "/api/devices/all",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -85,7 +85,7 @@ export function AdminDashboard({
     try {
 
       await api.put(
-        `/complaints/${id}`,
+        `/api/complaints/${id}`,
         { status },
         {
           headers: {
